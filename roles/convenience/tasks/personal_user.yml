@@ -1,0 +1,23 @@
+---
+
+- name: setup user
+  user: name=$personal_user
+    state=present
+    
+    
+- name: setup ssh key
+  authorized_key: 
+    user=$personal_user 
+    key="{{ item }}"
+  with_file:
+    - "{{ lookup('env','HOME') }}/.ssh/id_rsa.pub"
+
+- name: Setup user for sudo
+  lineinfile: 
+    dest=/etc/sudoers 
+    regexp="$personal_user ALL"
+    insertafter=EOF
+    state=present
+    line="$personal_user ALL=(ALL) NOPASSWD:ALL"
+    
+

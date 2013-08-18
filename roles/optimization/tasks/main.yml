@@ -1,0 +1,37 @@
+---
+
+- name: _
+  shell: "[ -n \"$(dpkg -l | grep aptitude)\" ]  && [ -n \"$(dpkg -l | grep python-apt)\" ]  && echo ''Installed'' || echo 'Not installed'"
+  register: ansible_pre_req
+
+- name: Install Ansible apt module pre-req:s
+  shell: "apt-get update && apt-get install --assume-yes aptitude python-apt"
+  when: ansible_pre_req.stdout == "Not installed"
+
+- name: Upgrade packages
+  apt: update_cache=yes upgrade=safe
+
+- name: _
+  shell: df -m |  awk '/rootfs/ {print $3}'
+  register: used
+
+- name: Remove packages depending on x11-*
+  shell: "apt-get remove --assume-yes --auto-remove --purge libx11-.*"
+
+- name: Remove misc packages related to the video and sound output capabilities of the Raspberry Pi
+  apt: "state=absent 
+        pkg=libraspberrypi-bin,libraspberrypi-dev,libraspberrypi-dev,libraspberrypi-doc,penguinspuzzle,omxplayer,lxde-icon-theme,raspberrypi-artwork,libasound2,alsa-base,alsa-utils"
+  
+- name: Autoremove packages
+  shell: "apt-get autoremove --assume-yes --purge"
+
+- name: Autoclean
+  shell: "apt-get autoclean --assume-yes"
+  
+- name: _
+  shell: expr ${used.stdout} - `df -m |  awk '/rootfs/ {print $3}'`
+  register: used1
+  ignore_errors: yes
+
+- name: _
+  debug: msg="Removing packages freed [${used1.stdout}] MB." 

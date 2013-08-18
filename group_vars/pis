@@ -1,0 +1,3 @@
+# Here are variables  
+
+personal_user: "{{ lookup('env','USER') }}"

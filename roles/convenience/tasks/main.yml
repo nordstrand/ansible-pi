@@ -1,0 +1,14 @@
+---
+
+- name: Setup alias for all users
+  lineinfile: dest=/etc/bash.bashrc 
+    line="alias ll='ls -l'"
+    regexp="alias ll"
+    insertafter=EOF
+    state=present
+
+- include: personal_user.yml
+  when: (local_ssh_key_present)
+
+
+

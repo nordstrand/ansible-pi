@@ -1,0 +1,15 @@
+---
+# This playbook will prepare a Rsapberry PI running Raspbian for usage as a headless micro server
+
+- hosts: pis
+  gather_facts: no
+  user: pi
+  sudo: yes
+
+  roles:
+    - optimization
+    - convenience
+  
+  vars:
+    local_ssh_key_present: "{{ lookup('pipe', '[ -f $HOME/.ssh/id_rsa.pub ] && echo ''Found'' || echo ''''') }}"
+
